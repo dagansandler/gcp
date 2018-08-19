@@ -11,7 +11,7 @@ opereto_packages_repo_sk = client.input['opereto_packages_repo_sk']
 opereto_packages_bucket_name = client.input['opereto_packages_bucket_name']
 
 if __name__ == "__main__":
-    obj = OperetoAwsS3PackagesManager(package_directory, opereto_packages_bucket_name, opereto_packages_repo_ak,opereto_packages_repo_sk, 'opereto_gcp_services')
+    obj = OperetoAwsS3PackagesManager(package_directory, opereto_packages_bucket_name, opereto_packages_repo_ak,opereto_packages_repo_sk, 'opereto-gcp-services')
     obj.deploy()
 
 

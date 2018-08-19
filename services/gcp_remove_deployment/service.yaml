@@ -27,7 +27,7 @@ item_properties:
     store: []
     type: json
     help: Access credentials to GCP account
-    value: GLOBALS.gcp_access_credentials
+    value: GLOBALS.opereto-gcp-services-gcp_access_credentials
 timeout: 1800
 type: action
 
