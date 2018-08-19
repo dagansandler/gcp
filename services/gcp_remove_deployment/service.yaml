@@ -1,0 +1,33 @@
+cmd:
+  type: python-venv
+  command:
+    default: python -u run.py
+  path:
+    default: ~/.opereto/operetovenv
+item_properties:
+-   direction: input
+    editor: text
+    key: deployment_name
+    mandatory: true
+    type: text
+    value:
+    help: A unique name of the gcp deployment
+-   direction: input
+    editor: text
+    key: gcp_project_id
+    mandatory: true
+    type: text
+    value: GLOBALS.gcp_default_project
+    help: The GCP project identifier
+    example: proj-1-1000
+-   editor: json
+    key: gcp_access_credentials
+    direction: input
+    mandatory: true
+    store: []
+    type: json
+    help: Access credentials to GCP account
+    value: GLOBALS.gcp_access_credentials
+timeout: 1800
+type: action
+

@@ -1,0 +1,5 @@
+{
+   "opereto.worker": true,
+   "opereto.shared": true,
+   "mapping_indicator": "any"
+}

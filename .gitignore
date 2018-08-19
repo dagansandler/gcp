@@ -1,0 +1,14 @@
+.idea
+.idea/
+.idea/*
+.project
+.classpath
+*.pyc
+.metadata/
+.metadata/*
+.settings/
+target/
+target/*
+opereto.yaml
+arguments.yaml
+arguments.json

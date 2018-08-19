@@ -1,0 +1,138 @@
+cmd:
+  type: python-venv
+  command:
+    default: python -u run.py
+  path:
+    default: ~/.opereto/operetovenv
+
+item_properties:
+-   direction: input
+    editor: text
+    key: deployment_name
+    mandatory: true
+    type: text
+    value: dror-10
+    help: A unique name for the deployment
+
+-   direction: input
+    editor: text
+    key: gcp_project_id
+    mandatory: true
+    type: text
+    value: GLOBALS.gcp_default_project
+    help: The GCP project identifier
+    example: proj-1-1000
+
+-   direction: input
+    editor: yaml
+    key: deployment_template
+    mandatory: false
+    type: text
+    value: ''
+    help: The deployment template (yaml/jinja format)
+    example:  |
+        imports:
+        - path: vm-template.jinja
+        - path: network-template.jinja
+        - path: firewall-template.jinja
+        - path: topology-template.jinja
+        resources:
+        - name: topology-setup
+          type: topology-template.jinja
+
+-   direction: input
+    editor: yaml
+    key: deployment_import_templates
+    mandatory: false
+    type: text
+    value: ''
+    example:  |
+        network-template.jinja:
+            resources:
+            - name: cluster-network
+              type: compute.v1.network
+        firewall-template.jinja:
+            resources:
+            - name: a-firewall-rule
+              type: compute.v1.firewall
+              properties:
+                  network: $(ref.cluster-network.selfLink)
+                  sourceRanges: ["0.0.0.0/0"]
+                  allowed:
+                  - IPProtocol: TCP
+                    ports: ["22"]
+                  - IPProtocol: ICMP
+        vm-template.jinja:
+            resources:
+            - name: mytesttopology
+              type: compute.v1.instance
+              properties:
+                 zone: us-central1-a
+                 machineType: zones/us-central1-a/machineTypes/n1-standard-1
+                 disks:
+                 - deviceName: boot
+                   type: PERSISTENT
+                   boot: true
+                   autoDelete: true
+                   initializeParams:
+                     sourceImage: projects/ubuntu-os-cloud/global/images/ubuntu-1604-xenial-v20180814
+                 networkInterfaces:
+                 networkInterfaces:
+                 - network: $(ref.cluster-network.selfLink)
+                   accessConfigs:
+                   - name: External NAT
+                     type: ONE_TO_ONE_NAT
+              labels:
+                   opereto-agent-os: linux
+                   opereto-agent-id: mytesttopology_Node1
+        topology-template.jinja:
+            resources:
+            - name: mytesttopology
+              type: vm-template.jinja
+            - name: mytesttopology-network
+              type: network-template.jinja
+            - name: mytesttopology-firewall
+              type: firewall-template.jinja
+    help: The deployment imported templates (yaml/jinja format)
+
+-   direction: input
+    editor: checkbox
+    key: install_core_tools
+    mandatory: false
+    type: boolean
+    value: false
+    help: If checked, installs opereto core tools on each agent installation
+
+-   direction: input
+    editor: checkbox
+    key: install_container_tools
+    mandatory: false
+    type: boolean
+    value: false
+    help: If checked, installs opereto container tools on each agent installation
+
+-   direction: input
+    editor: checkbox
+    key: disable_rollback
+    mandatory: false
+    type: boolean
+    value: false
+    help: If checked, deployment will not rollback upon failure. Useful for manual inspection and deletion
+
+-   editor: json
+    key: gcp_access_credentials
+    direction: input
+    mandatory: true
+    store: []
+    type: json
+    help: Access credentials to GCP account
+    value: GLOBALS.gcp_access_credentials
+
+-   editor: hidden
+    key: deployment_output
+    direction: output
+    type: json
+    help: The created gcp deployment output
+    value:
+timeout: 3600
+type: action
