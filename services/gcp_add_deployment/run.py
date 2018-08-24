@@ -343,7 +343,7 @@ class ServiceRunner(ServiceTemplate):
                     install_list_2=[]
                     for agent_name, attr in self.agents.items():
                         title = 'Installing opereto container tools on agent {}'.format(agent_name)
-                        install_list_2.append(self.client.create_process(service='install_docker_worker', agent=agent_name, title=title))
+                        install_list_2.append(self.client.create_process(service='install_docker', agent=agent_name, title=title))
 
                     if not self.client.is_success(install_list_2):
                         raise OperetoRuntimeError('Failed to install opereto container tools on one or more agents')
