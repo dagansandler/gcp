@@ -286,6 +286,9 @@ class ServiceRunner(ServiceTemplate):
             if not response['operation']['status']=='DONE':
                 raise Exception, 'Deployment failed.'
 
+            if response['operation'].get('error'):
+                raise Exception, 'Deployment failed: {}'.format(json.dumps(response['operation']['errors'], indent=4))
+
             if response['operation']['progress']==100:
                 print 'Deployment is ready'
             else:
@@ -347,6 +350,7 @@ class ServiceRunner(ServiceTemplate):
 
                     if not self.client.is_success(install_list_2):
                         raise OperetoRuntimeError('Failed to install opereto container tools on one or more agents')
+
 
             return self.client.SUCCESS
 

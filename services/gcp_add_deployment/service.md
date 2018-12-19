@@ -1,4 +1,5 @@
 This service creates a deployment and all of the resources described by the deployment manager template in GCP given account/project.
+[Learn more about GCP Deployment Manager](https://cloud.google.com/deployment-manager/docs/)
 
 It gets a valid deployment template as an input. In addition, it allows to automatically installing opereto agent and tools on specified instances as defined in the template.
 Agent installation is performed by adding a short startup script to the metadata field of the instance resource in the deployment template. 
