@@ -175,10 +175,10 @@ Apache License
 
    END OF TERMS AND CONDITIONS
 
-   Opereto worker libs
-   This library includes the opereto python worker virtualenv and libs developed by the Opereto team.
+   Opereto GCP Services
+   This package contains a set of common operations used by opereto in google cloud plaftorm.
 
-   Copyright 2014-2018 Opereto Ltd. (www.opereto.com)
+   Copyright 2014-2019 Opereto Ltd. (www.opereto.com)
 
 
    Licensed under the Apache License, Version 2.0 (the "License");

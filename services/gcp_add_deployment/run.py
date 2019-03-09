@@ -60,8 +60,23 @@ class ServiceRunner(ServiceTemplate):
                  "gcp_access_credentials": {
                     "type": "object"
                  },
-                 "required": ['gcp_project_id', 'deployment_template', 'gcp_access_credentials'],
-                 "additionalProperties": True
+                "agent_package_url": {
+                    "type": "object",
+                    "properties": {
+                        "windows": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "linux": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    "required": ['windows', 'linux'],
+                    "additionalProperties": True
+                },
+                "required": ['gcp_project_id', 'deployment_template', 'gcp_access_credentials'],
+                "additionalProperties": True
             }
         }
         validator = JsonSchemeValidator(self.input, input_scheme)
@@ -86,11 +101,11 @@ class ServiceRunner(ServiceTemplate):
         - key: startup-script
           value: |
             #! /bin/bash
-            curl -O https://s3.amazonaws.com/opereto_downloads/opereto-agent-latest.tar.gz
+            curl -O {}
             tar -zxvf opereto-agent-latest.tar.gz
             cd opereto-agent-latest
             sudo chmod 777 -R *
-            ./install.sh -b {} -u {} -p {} -n {}""".format(self.input['opereto_host'], self.input['opereto_user'], self.input['opereto_password'], agent_name)
+            ./install.sh -b {} -u {} -p {} -n {}""".format(self.input['agent_package_url']['linux'],self.input['opereto_host'], self.input['opereto_user'], self.input['opereto_password'], agent_name)
 
             return data
 
@@ -111,14 +126,14 @@ class ServiceRunner(ServiceTemplate):
             $MyDir = "c:"
             $filename = Join-Path -Path $MyDir -ChildPath "opereto-agent-latest.zip"
             $WebClient = New-Object System.Net.WebClient
-            $WebClient.DownloadFile("https://s3.amazonaws.com/opereto_downloads/opereto-agent-latest.zip", "$filename")
+            $WebClient.DownloadFile("%s", "$filename")
             Unzip "$MyDir\opereto-agent-latest.zip" "$MyDir\opereto"
             cd "$MyDir\opereto\opereto-agent-latest"
             ./opereto-install.bat %s %s "%s" %s javaw
             ./opereto-start.bat
             Remove-Item $filename
             </powershell>
-            <persist>true</persist>"""%(self.input['opereto_host'], self.input['opereto_user'], self.input['opereto_password'], agent_name)
+            <persist>true</persist>"""%(self.input['agent_package_url']['windows'], self.input['opereto_host'], self.input['opereto_user'], self.input['opereto_password'], agent_name)
 
             return data
 

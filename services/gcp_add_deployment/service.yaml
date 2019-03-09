@@ -103,6 +103,16 @@ item_properties:
     value: false
     help: If checked, installs opereto core tools on each agent installation
 
+-   editor: json
+    key: agent_package_url
+    direction: input
+    mandatory: true
+    type: json
+    help: The installation packages of the Opereto agent
+    value:
+        linux: https://s3.amazonaws.com/opereto-agent/opereto-agent-latest.tar.gz
+        windows: https://s3.amazonaws.com/opereto-agent/opereto-agent-latest.zip
+
 -   direction: input
     editor: checkbox
     key: install_container_tools
