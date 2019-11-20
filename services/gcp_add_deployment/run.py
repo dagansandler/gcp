@@ -2,13 +2,11 @@ import json
 import time
 import sys
 import uuid
-import socket
 import yaml
 from opereto.helpers.services import ServiceTemplate
 from opereto.utils.validations import JsonSchemeValidator, default_variable_name_scheme, default_entity_name_scheme, default_entity_description_scheme
 from opereto.utils.misc import retry
 from opereto.exceptions import *
-import pip
 import os
 import httplib2
 from oauth2client.contrib import gce
