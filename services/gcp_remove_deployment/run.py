@@ -2,7 +2,7 @@ import httplib2
 from oauth2client.contrib import gce
 from apiclient.discovery import build
 from apiclient.errors import HttpError
-
+import json
 import time
 import sys
 import os
@@ -17,7 +17,6 @@ class ServiceRunner(ServiceTemplate):
 
     def setup(self):
         raise_if_not_ubuntu()
-
 
     def validate_input(self):
         input_scheme = {
