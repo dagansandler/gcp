@@ -17,12 +17,12 @@ class ServiceRunner(ServiceTemplate):
 
     def __init__(self, **kwargs):
         ServiceTemplate.__init__(self, **kwargs)
+        self.agents = {}
+        self.agent_data_map = {}
+        self.deployment_info = {}
 
     def setup(self):
         raise_if_not_ubuntu()
-        self.agents = {}
-        self.agent_data_map = {}
-        self.deployment_info={}
 
     def validate_input(self):
 
