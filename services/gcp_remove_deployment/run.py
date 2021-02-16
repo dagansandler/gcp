@@ -52,7 +52,7 @@ class ServiceRunner(ServiceTemplate):
         self.gcp_http_handler = credentials.authorize(httplib2.Http())
         self.gcp_deploy_manager = build('deploymentmanager', 'v2')
 
-        print 'Connected.'
+        print('Connected.')
 
 
     def process(self):
@@ -73,11 +73,11 @@ class ServiceRunner(ServiceTemplate):
                 except HttpError as err:
                     if err.resp.status==404:
                         break
-            print 'Deployment deleted successfully'
+            print('Deployment deleted successfully')
 
-        except Exception, e:
-            print >> sys.stderr, 'Deployment deletion failed : %s.'%str(e)
-            print >> sys.stderr, 'Please retry again later or delete the deployment directly from GCP deployment manager console.'
+        except Exception as e:
+            sys.stderr.write('Deployment deletion failed : %s.'%str(e))
+            sys.stderr.write('Please retry again later or delete the deployment directly from GCP deployment manager console.')
             return self.client.FAILURE
 
 

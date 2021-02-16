@@ -11,7 +11,7 @@ item_properties:
     key: deployment_name
     mandatory: true
     type: text
-    value: dror-10
+    value: test-10
     help: A unique name for the deployment
 
 -   direction: input
@@ -110,9 +110,8 @@ item_properties:
     type: json
     help: The installation packages of the Opereto agent
     value:
-        linux: https://s3.amazonaws.com/opopereto_downloadsereto_downloads/opereto-agent-latest.tar.gz
-        windows: https://s3.amazonaws.com//opereto-agent-latest.zip
-
+        linux: https://s3.amazonaws.com/opereto_downloads/3.0.112/opereto-agent-latest.tar.gz
+        windows: https://s3.amazonaws.com/opereto_downloads/3.0.112/opereto-agent-latest.zipß
 -   direction: input
     editor: checkbox
     key: install_container_tools
