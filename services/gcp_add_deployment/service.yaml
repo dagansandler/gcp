@@ -111,7 +111,7 @@ item_properties:
     help: The installation packages of the Opereto agent
     value:
         linux: https://s3.amazonaws.com/opereto_downloads/3.0.112/opereto-agent-latest.tar.gz
-        windows: https://s3.amazonaws.com/opereto_downloads/3.0.112/opereto-agent-latest.zip
+        windows: https://s3.amazonaws.com/opereto_downloads/3.0.112/opereto-agent-latest.zipß
 -   direction: input
     editor: checkbox
     key: install_container_tools
