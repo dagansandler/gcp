@@ -5,7 +5,7 @@ import uuid
 import yaml
 from opereto.helpers.services import ServiceTemplate
 from opereto.utils.validations import JsonSchemeValidator, default_variable_name_scheme, default_entity_name_scheme, default_entity_description_scheme
-from opereto.utils.misc import retry
+from opereto.utils.misc import retry, get_opereto_major_release
 from opereto.exceptions import *
 import os
 import httplib2
@@ -20,6 +20,7 @@ class ServiceRunner(ServiceTemplate):
         self.agents = {}
         self.agent_data_map = {}
         self.deployment_info = {}
+        self.token = self.client.token
 
     def setup(self):
         raise_if_not_ubuntu()
@@ -86,14 +87,20 @@ class ServiceRunner(ServiceTemplate):
         self.deployment_name = self.input['deployment_name']
 
         if self.install_container_tools and not self.install_core_tools:
-            raise Exception, 'Opereto container tools is dependant on opereto core tools. Please check the "install_core_tools" checkbox too.'
+            raise Exception('Opereto container tools is dependant on opereto core tools. Please check the "install_core_tools" checkbox too.')
 
         source_user = self.client.input['opereto_originator_username']
-        self.users = [source_user]
-        self.owners = [source_user]
+        agent_user = self.client.input['opereto_user']
+        self.users = [source_user, agent_user]
+        self.owners = [source_user, agent_user]
 
 
         def linux_user_data(agent_name):
+            agent_install_command = './install.sh -h {} -t {} -n {}'.format(self.input['opereto_host'], self.token,
+                                                                            agent_name)
+            if get_opereto_major_release(self.client)<3:
+                agent_install_command = './install.sh -b {} -u {} -p {} -n {}'.format(self.input['opereto_host'], agent_user, self.input['opereto_password'], agent_name)
+
             data = """ 
         items:
         - key: startup-script
@@ -103,7 +110,7 @@ class ServiceRunner(ServiceTemplate):
             tar -zxvf opereto-agent-latest.tar.gz
             cd opereto-agent-latest
             sudo chmod 777 -R *
-            ./install.sh -b {} -u {} -p {} -n {}""".format(self.input['agent_package_url']['linux'],self.input['opereto_host'], self.input['opereto_user'], self.input['opereto_password'], agent_name)
+            {}""".format(self.input['agent_package_url']['linux'], agent_install_command)
 
             return data
 
@@ -117,21 +124,21 @@ class ServiceRunner(ServiceTemplate):
             <powershell>
             Add-Type -AssemblyName System.IO.Compression.FileSystem
             function Unzip
-            {
+            {{
                 param([string]$zipfile, [string]$outpath)
                 [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
-            }
+            }}
             $MyDir = "c:"
             $filename = Join-Path -Path $MyDir -ChildPath "opereto-agent-latest.zip"
             $WebClient = New-Object System.Net.WebClient
-            $WebClient.DownloadFile("%s", "$filename")
+            $WebClient.DownloadFile("{}", "$filename")
             Unzip "$MyDir\opereto-agent-latest.zip" "$MyDir\opereto"
             cd "$MyDir\opereto\opereto-agent-latest"
-            ./opereto-install.bat %s %s "%s" %s javaw
+            ./opereto-install.bat {} {} {} javaw
             ./opereto-start.bat
             Remove-Item $filename
             </powershell>
-            <persist>true</persist>"""%(self.input['agent_package_url']['windows'], self.input['opereto_host'], self.input['opereto_user'], self.input['opereto_password'], agent_name)
+            <persist>true</persist>""".format(self.input['agent_package_url']['windows'], self.input['opereto_host'], self.token, agent_name)
 
             return data
 
@@ -173,17 +180,17 @@ class ServiceRunner(ServiceTemplate):
                             else:
                                 try:
                                     JsonSchemeValidator(agent_name, default_variable_name_scheme).validate()
-                                except Exception,e:
+                                except Exception as e:
                                     raise OperetoRuntimeError('Invalid agent identifier: {}'.format(str(e)))
                             if agent_display_name:
                                 try:
                                     JsonSchemeValidator(agent_display_name, default_entity_name_scheme).validate()
-                                except Exception,e:
-                                    raise OperetoRuntimeError('Invalid agent name: {}'.format(str(e)))
+                                except Exception as e:
+                                    raise OperetoRuntimeError('Invalid agent agent_install_commandname: {}'.format(str(e)))
                             if agent_description:
                                 try:
                                     JsonSchemeValidator(agent_description, default_entity_description_scheme).validate()
-                                except Exception,e:
+                                except Exception as e:
                                     raise OperetoRuntimeError('Invalid agent description: {}'.format(str(e)))
 
                             if agent_os=='windows':
@@ -244,7 +251,7 @@ class ServiceRunner(ServiceTemplate):
         self.gcp_compute_manager = build('compute', 'v1')
         self.gcp_deploy_manager = build('deploymentmanager', 'v2')
 
-        print 'Connected.'
+        print('Connected.')
 
 
     def process(self):
@@ -252,13 +259,13 @@ class ServiceRunner(ServiceTemplate):
         @retry(10, 60, 1)
         def verify_that_all_agents_connected():
             for agent_name, attr in self.agents.items():
-                print 'Checking if agent %s is up and running' % agent_name
+                print('Checking if agent {} is up and running'.format(agent_name))
                 try:
                     self.client.get_agent_properties(agent_name)
                 except:
-                    print 'Agent %s is not up yet. Recheck in one minute..' % agent_name
+                    print('Agent {} is not up yet. Recheck in one minute..'.format(agent_name))
                     raise
-                print 'Agent %s is up and running.' % agent_name
+                print('Agent {} is up and running.'.format(agent_name))
             pass
 
 
@@ -283,7 +290,7 @@ class ServiceRunner(ServiceTemplate):
 
             status = response['status']
             while status in ['PENDING', 'RUNNING']:
-                print 'Waiting for deployment to be ready..'
+                print('Waiting for deployment to be ready..')
                 time.sleep(30)
                 request = self.gcp_deploy_manager.deployments().get(project=self.input['gcp_project_id'], deployment=self.deployment_name)
                 response = request.execute()
@@ -294,18 +301,18 @@ class ServiceRunner(ServiceTemplate):
             request = self.gcp_deploy_manager.deployments().get(project=self.input['gcp_project_id'],
                                                                 deployment=self.deployment_name)
             response = request.execute()
-            print 'Deployment status: {}'.format(json.dumps(response, indent=4))
+            print('Deployment status: {}'.format(json.dumps(response, indent=4)))
 
             if not response['operation']['status']=='DONE':
-                raise Exception, 'Deployment failed.'
+                raise Exception('Deployment failed.')
 
             if response['operation'].get('error'):
-                raise Exception, 'Deployment failed: {}'.format(json.dumps(response['operation']['errors'], indent=4))
+                raise Exception('Deployment failed: {}'.format(json.dumps(response['operation']['errors'], indent=4)))
 
             if response['operation']['progress']==100:
-                print 'Deployment is ready'
+                print('Deployment is ready')
             else:
-                raise Exception, 'Deployment failed.'
+                raise Exception('Deployment failed.')
 
             ## check agents installation
             try:
@@ -328,13 +335,13 @@ class ServiceRunner(ServiceTemplate):
             for agent_name, attr in self.agents.items():
                 try:
                     self.client.modify_agent_properties(agent_name, attr)
-                except Exception,e:
-                    print e
+                except Exception as e:
+                    print(e)
 
                 ## modify agent permissions
                 permissions = {
-                    'owners': self.users,
-                    'users': self.owners
+                    'owners': self.owners,
+                    'users': self.users
                 }
                 description = attr.get('agent_description') or 'Created by GCP deploy manager'
                 agent_display_name = attr.get('agent_display_name') or agent_name
@@ -367,14 +374,14 @@ class ServiceRunner(ServiceTemplate):
 
             return self.client.SUCCESS
 
-        except Exception, e:
+        except Exception as e:
             ### TBD: add to service template
             import re
             err_msg = re.sub("(.{9900})", "\\1\n", str(e), 0, re.DOTALL)
-            print >> sys.stderr, 'GCP deployment failed : %s.'%err_msg
+            sys.stderr.write('GCP deployment failed : {}.'.format(err_msg))
 
             if self.deployment_exist and not self.input.get('disable_rollback'):
-                print 'Rollback the deployment..'
+                print('Rollback the deployment..')
                 request = self.gcp_deploy_manager.deployments().delete(project=self.input['gcp_project_id'], deployment=self.deployment_name, deletePolicy='DELETE')
                 request.execute()
             return self.client.FAILURE

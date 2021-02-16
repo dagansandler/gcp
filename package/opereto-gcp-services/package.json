@@ -34,7 +34,7 @@
     },
     "summary": "This package contains a set of common operations used by opereto in google cloud plaftorm",
     "description": "This package is a wrapper to several operations (as listed bellow) that are commonly used by opereto users maintaining a continuous testing ecosystem in GCP cloud environment. GCP provides a comprehensive set of API calls allowing to manage every resource and perform any operation available. In case you need additional devops operations and you develop in python, we recommend extending this package based on google python SDK. Otherwise, wrapping one of the many third-party libraries or command line tools available in the market and build your own opereto services based on those tools.",
-    "version": "1.0.82",
+    "version": "3.0.100",
     "provider": "Opereto LTD",
     "category": "Cloud Computing Operations",
     "provider_url": "http://www.opereto.com",
