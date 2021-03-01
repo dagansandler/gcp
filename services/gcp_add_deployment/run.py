@@ -111,7 +111,7 @@ class ServiceRunner(ServiceTemplate):
             cd opereto-agent-latest
             sudo chmod 777 -R *
             {}""".format(self.input['agent_package_url']['linux'], agent_install_command)
-
+            
             return data
 
 
