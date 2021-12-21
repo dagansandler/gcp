@@ -221,11 +221,11 @@ class ServiceRunner(ServiceTemplate):
             return template_in_yaml
 
 
-        self.deployment_template = _add_agent_installation(yaml.load(self.input['deployment_template']))
+        self.deployment_template = _add_agent_installation(yaml.load(self.input['deployment_template'], Loader=yaml.SafeLoader))
         self.deployment_import_templates = []
 
         if self.input['deployment_import_templates']:
-            for name, content in yaml.load(self.input['deployment_import_templates']).items():
+            for name, content in yaml.load(self.input['deployment_import_templates'], Loader=yaml.SafeLoader).items():
                 content = _add_agent_installation(content)
                 entry = {
                     "name": name,
